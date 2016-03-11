@@ -1,36 +1,67 @@
 defmodule Mazurka.Resource.Affordance do
-  defmacro affordance(mediatype, [do: block]) do
-    Mazurka.Compiler.Utils.register(mediatype, __MODULE__, block, __CALLER__.module)
-  end
+  use Mazurka.Resource.Utils
 
-  def default(module) do
-    {nil, module}
-  end
-
-  def compile(mediatype, block, globals, _) do
+  defmacro __using__(_) do
     quote do
-      unquote_splicing(globals[:param] || [])
-      unquote_splicing(globals[:let] || [])
-      affordance = ^^Mazurka.Resource.Link.resolve(prop(:resource), prop(:params), prop(:query), prop(:fragment))
-      affordance_props = unquote(block)
-      failure = unquote(globals[:condition] |> Mazurka.Resource.Condition.compile_silent())
+      @doc """
+      Create an affordance block
 
-      response = unquote(mediatype).handle_affordance(affordance, affordance_props)
-
-      if failure do
-        :undefined
-      else
-        response
+          mediatype #{inspect(__MODULE__)} do
+            affordance do
+              # affordance goes here
+            end
+          end
+      """
+      defmacro affordance(block) do
+        mediatype = __MODULE__
+        quote do
+          require Mazurka.Resource.Affordance
+          Mazurka.Resource.Affordance.affordance(unquote(mediatype), unquote(block))
+        end
       end
     end
   end
 
-  def expand(ast, _) do
-    Mazurka.Compiler.Utils.postwalk(ast, fn(expr) ->
-      expr
-      |> Mazurka.Resource.Param.format(:prop)
-      |> Mazurka.Resource.Input.format(:prop)
-      |> Mazurka.Resource.Resource.format(:prop)
-    end)
+  @doc """
+  Create an affordance block for a mediatype
+
+      affordance Mazurka.Mediatype.MyCustomMediatype do
+        # affordance goes here
+      end
+  """
+  defmacro affordance(mediatype, [do: block]) do
+    quote do
+      defp mazurka__match_affordance(unquote(mediatype), resource, unquote_splicing(arguments)) do
+        affordance = Mazurka.Resource.Link.resolve(resolve, unquote_splicing(arguments))
+        props = unquote(block)
+        unquote(mediatype).__handle_affordance__(affordance, props)
+      end
+    end
+  end
+
+  defmacro __before_compile__(_) do
+    quote do
+      @doc """
+      TODO write docs
+      """
+      def affordance(content_type, unquote_splicing(arguments)) do
+        case mazurka__provide_content_type(content_type) do
+          nil ->
+            ## TODO should we provide a default link if we don't know how to handle this request?
+            nil
+          mediatype ->
+            case mazurka__conditions(unquote_splicing(arguments)) do
+              {:error, _} ->
+                nil
+              :ok ->
+                mazurka__match_affordance(mediatype, unquote_splicing(arguments))
+            end
+        end
+      end
+
+      defp mazurka__match_affordance(_, _, _, _) do
+        nil
+      end
+    end
   end
 end

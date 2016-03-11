@@ -1,48 +1,73 @@
 defmodule Mazurka.Resource.Action do
-  defmacro action(mediatype, [do: block]) do
-    Mazurka.Compiler.Utils.register(mediatype, __MODULE__, block, nil)
-  end
+  use Mazurka.Resource.Utils
 
-  def default(_module) do
-    {nil, nil}
-  end
-
-  def compile(mediatype, block, globals, _meta) do
+  defmacro __using__(_) do
     quote do
-      unquote_splicing(globals[:param] || [])
-      unquote_splicing(globals[:let] || [])
-      action = unquote(block)
-      events = unquote(globals[:event])
+      @doc """
+      Create an action block
 
-      # this may seem redundant but it's used for tracking causality
-      # between the event and action
-      response = if action do
-        events
-        action
-      else
-        events
-        action
-      end
-
-      condition_failure = unquote(globals[:condition] |> Mazurka.Resource.Condition.compile_fatal())
-      validation_failure = unquote(globals[:validation] |> Mazurka.Resource.Validation.compile())
-
-      failure = condition_failure || validation_failure
-
-      if failure do
-        raise failure
-      else
-        unquote(mediatype).handle_action(response)
+          mediatype #{inspect(__MODULE__)} do
+            action do
+              # action goes here
+            end
+          end
+      """
+      defmacro action(block) do
+        mediatype = __MODULE__
+        quote do
+          require Mazurka.Resource.Action
+          Mazurka.Resource.Action.action(unquote(mediatype), unquote(block))
+        end
       end
     end
   end
 
-  def expand(ast, _) do
-    Mazurka.Compiler.Utils.postwalk(ast, fn(expr) ->
-      expr
-      |> Mazurka.Resource.Param.format(:conn)
-      |> Mazurka.Resource.Input.format(:conn)
-      |> Mazurka.Resource.Resource.format(:conn)
-    end)
+  @doc """
+  Create an action block for a mediatype
+
+      action Mazurka.Mediatype.MyCustomMediatype do
+        # action goes here
+      end
+  """
+  defmacro action(mediatype, [do: block]) do
+    quote do
+      defp mazurka__match_action(unquote(mediatype), unquote_splicing(arguments)) do
+        action = unquote(block)
+        unquote(mediatype).__handle_action__(action)
+      end
+    end
+  end
+
+  defmacro __before_compile__(_) do
+    quote do
+      @doc """
+      TODO write docs
+      """
+      def action(content_type, unquote_splicing(arguments)) do
+        case mazurka__provide_content_type(content_type) do
+          nil ->
+            raise Mazurka.UnacceptableContentTypeException, [
+              content_type: content_type,
+              acceptable: mazurka__acceptable_content_types()
+            ]
+          mediatype ->
+            case mazurka__conditions(unquote_splicing(arguments)) do
+              {:error, message} ->
+                raise Mazurka.ConditionException, message: message
+              :ok ->
+                case mazurka__validations(unquote_splicing(arguments)) do
+                  {:error, message} ->
+                    raise Mazurka.ValidationException, message: message
+                  :ok ->
+                    mazurka__match_action(mediatype, unquote_splicing(arguments))
+                end
+            end
+        end
+      end
+
+      defp mazurka__match_action(_, _, _, _) do
+        ## TODO raise exception
+      end
+    end
   end
 end

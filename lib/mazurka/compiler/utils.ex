@@ -40,20 +40,9 @@ defmodule Mazurka.Compiler.Utils do
 
   defp do_expand(quoted, env) do
     postwalk(quoted, fn
-      {type, meta, children} ->
-        meta = replace_kernel(meta)
-        Macro.expand({type, meta, children}, env)
       other ->
         Macro.expand(other, env)
     end)
-  end
-
-  defp replace_kernel(meta) do
-    if meta[:import] == Kernel do
-      Keyword.put(meta, :import, Mazurka.Compiler.Kernel)
-    else
-      meta
-    end
   end
 
   def register(name, block) do

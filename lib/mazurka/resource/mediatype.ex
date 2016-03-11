@@ -2,53 +2,43 @@ defmodule Mazurka.Resource.Mediatype.UndefinedMediatype do
   defexception [:mediatype]
 
   def message(%{mediatype: mediatype}) do
-    "undefined mediatype #{mediatype}"
+    "Undefined mediatype #{mediatype}"
   end
 end
 
 defmodule Mazurka.Resource.Mediatype do
-  alias Mazurka.Compiler.Utils
-
-  defmacro mediatype(module, [do: block]) do
-    name = Utils.eval(module, __CALLER__)
-    name = [name, Module.concat(Mazurka.Mediatype, name)] |> resolve_mediatype(name)
-    Utils.register(name, __MODULE__, true, nil)
-    wrap(block, name)
+  defmacro __using__(_) do
+    quote do
+      import unquote(__MODULE__)
+      @before_compile Mazurka.Resource.Action
+      @before_compile Mazurka.Resource.Affordance
+      @before_compile Mazurka.Resource.Provides
+    end
   end
 
-  defp wrap({:__block__, children}, module) do
-    wrap({:__block__, [], children}, module)
-  end
-  defp wrap({:__block__, meta, children}, module) do
-    {:__block__, meta, [pre(module, meta), default_error | children] ++ [post(module, meta)]}
-  end
-  defp wrap(child, module) do
-    {:__block__, [], [pre(module), default_error, child, post(module)]}
+  defmacro mediatype(name, [do: block]) do
+    module = name
+    |> Mazurka.Compiler.Utils.eval(__CALLER__)
+    |> resolve()
+
+    quote do
+      use unquote(module)
+      unquote(block)
+      import unquote(module), only: [], warn: false
+    end
   end
 
-  defp pre(module, meta \\ []) do
-    {:import, meta, [module, [warn: false]]}
+  defp resolve(module) do
+    resolve([module, Module.concat(Mazurka.Mediatype, module)], module)
   end
 
-  defp post(module, meta \\ []) do
-    {:import, meta, [module, [only: [], warn: false]]}
-  end
-
-  defp resolve_mediatype([], module) do
+  defp resolve([], module) do
     raise __MODULE__.UndefinedMediatype, mediatype: to_string(module)
   end
-  defp resolve_mediatype([mod | rest], module) do
+  defp resolve([mod | rest], module) do
     mod.module_info() && mod
   catch
     _, _ ->
-      resolve_mediatype(rest, module)
-  end
-
-  def default_error do
-    quote do
-      error error(_) do
-        nil
-      end
-    end
+      resolve(rest, module)
   end
 end

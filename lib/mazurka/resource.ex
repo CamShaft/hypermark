@@ -7,22 +7,47 @@ defmodule Mazurka.Resource do
       end
   """
   defmacro __using__(_opts) do
-    # Mazurka.Compiler.Utils.put(__CALLER__, nil, __MODULE__, opts)
     quote do
-      import Mazurka.Resource.Condition
-      import Mazurka.Resource.Event
-      import Mazurka.Resource.Let
-      import Mazurka.Resource.Mediatype
-      import Mazurka.Resource.Param
-      import Mazurka.Resource.Partial
+      use Mazurka.Resource.Condition
+      use Mazurka.Resource.Event
+      use Mazurka.Resource.Input
+      use Mazurka.Resource.Let
+      use Mazurka.Resource.Mediatype
+      use Mazurka.Resource.Param
+      use Mazurka.Resource.Params
       use Mazurka.Resource.Test
-      import Mazurka.Resource.Validation
+      use Mazurka.Resource.Validation
 
-      require Mazurka.Compiler.Utils
-      require Logger
+      @before_compile unquote(__MODULE__)
+    end
+  end
 
-      require Mazurka.Compiler
-      @before_compile {Mazurka.Compiler, :compile}
+  defmacro __before_compile__(_) do
+    quote do
+      @doc """
+      Execute a request against the #{inspect(__MODULE__)} resource
+
+          accept = [
+            {"application", "json", %{}},
+            {"text", "*", %{}}
+          ]
+          router = My.Router
+          params = %{"user" => "123"}
+          input = %{"name" => "Joe"}
+
+          #{inspect(__MODULE__)}.call(accept, router, params, input)
+      """
+      def call(content_types, router, params, input) do
+        case mazurka__select_content_type(content_types) do
+          nil ->
+            raise Mazurka.UnacceptableContentTypeException, [
+              content_type: content_types,
+              acceptable: mazurka__acceptable_content_types()
+            ]
+          content_type ->
+            {content_type, action(content_type, router, params, input)}
+        end
+      end
     end
   end
 end

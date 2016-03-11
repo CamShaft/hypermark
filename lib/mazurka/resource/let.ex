@@ -1,24 +1,36 @@
 defmodule Mazurka.Resource.Let do
-  defmacro let({:=, _meta, [_name, _block]} = node) do
-    store(node)
+  use Mazurka.Resource.Utils
+
+  defmacro __using__(_) do
+    quote do
+      import unquote(__MODULE__)
+    end
   end
 
-  defmacro let({:=, meta, [name, {call, call_meta, call_args}]}, clauses) do
-    {:=, meta, [name, {call, call_meta, call_args ++ [clauses]}]}
-    |> store
-  end
-  defmacro let(name, [do: body]) do
-    {:=, [], [name, body]}
-    |> store
+  @doc """
+  Define a resource-wide variable
+
+      let foo = 1
+  """
+  defmacro let({:=, meta, [name, block]}) do
+    to_quoted(name, meta, block)
   end
 
-  defp store(block) do
-    Mazurka.Compiler.Utils.register(__MODULE__, block)
+  @doc """
+  Define a resource-wide variable with a block
+
+      let foo do
+        id = Params.get("user")
+        User.get(id)
+      end
+  """
+  defmacro let(name, [do: block]) do
+    to_quoted(name, [], block)
   end
 
-  def compile(lets, _env) do
-    Enum.map(lets, fn({ast, _meta}) ->
-      ast
-    end)
+  defp to_quoted(name, meta, block) do
+    {:defmacrop, meta, [name, [
+      do: {:quote, [], [[
+        do: block]]}]]}
   end
 end

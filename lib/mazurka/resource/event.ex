@@ -1,11 +1,33 @@
 defmodule Mazurka.Resource.Event do
-  defmacro event([do: block]) do
-    Mazurka.Compiler.Utils.register(__MODULE__, block)
+  use Mazurka.Resource.Utils
+
+  defmacro __using__(_) do
+    quote do
+      import unquote(__MODULE__)
+
+      @doc false
+      defp event(unquote_splicing(arguments)) do
+        nil
+      end
+      defoverridable event: unquote(length(arguments))
+    end
   end
 
-  def compile(events, _env) do
-    Enum.map(events, fn({ast, _meta}) ->
-      ast
-    end)
+  @doc """
+  Create an event block
+
+      event do
+        # event goes here
+      end
+  """
+  defmacro event([do: block]) do
+    quote do
+      @doc false
+      defp event(unquote_splicing(arguments)) do
+        super(unquote_splicing(arguments))
+        unquote({:__block__, [], block})
+      end
+      defoverridable event: unquote(length(arguments))
+    end
   end
 end

@@ -1,23 +1,19 @@
 defmodule Mazurka.Mediatype.XML do
   use Mazurka.Mediatype
 
-  def name do
-    XML
-  end
-
-  def content_types do
-    [{"application", "xml", %{}, Mazurka.Format.XML}]
+  def __content_types__ do
+    [{"application", "xml", %{}}]
   end
 
   def format_affordance(affordance, _props) do
     to_string(affordance)
   end
 
-  defmacro handle_action(block) do
+  defmacro __handle_action__(block) do
     block
   end
 
-  defmacro handle_affordance(affordance, props) do
+  defmacro __handle_affordance__(affordance, props) do
     quote do
       affordance = unquote(affordance)
       if affordance do
@@ -28,7 +24,7 @@ defmodule Mazurka.Mediatype.XML do
     end
   end
 
-  defmacro handle_error(block) do
+  defmacro __handle_error__(block) do
     block
   end
 end

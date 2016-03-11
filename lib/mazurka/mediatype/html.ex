@@ -1,12 +1,8 @@
 defmodule Mazurka.Mediatype.HTML do
   use Mazurka.Mediatype
 
-  def name do
-    HTML
-  end
-
-  def content_types do
-    [{"text", "html", %{}, Mazurka.Format.HTML}]
+  def __content_types__ do
+    [{"text", "html", %{}}]
   end
 
   def format_affordance(affordance, name) when is_binary(name) do
@@ -43,11 +39,11 @@ defmodule Mazurka.Mediatype.HTML do
     }
   end
 
-  defmacro handle_action(block) do
+  defmacro __handle_action__(block) do
     block
   end
 
-  defmacro handle_affordance(affordance, props) do
+  defmacro __handle_affordance__(affordance, props) do
     quote do
       affordance = unquote(affordance)
       if affordance do
@@ -58,7 +54,7 @@ defmodule Mazurka.Mediatype.HTML do
     end
   end
 
-  defmacro handle_error(block) do
+  defmacro __handle_error__(block) do
     block
   end
 end

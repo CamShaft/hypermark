@@ -3,58 +3,40 @@ defmodule Mazurka.Mediatype do
 
   @type ast :: Macro.t
   @type props :: Map.t
-  defmacrocallback handle_action(ast) :: any
-  defmacrocallback handle_affordance(ast, props) :: any
-  defmacrocallback handle_error(ast) :: any
+  defmacrocallback __handle_action__(ast) :: any
+  defmacrocallback __handle_affordance__(ast, props) :: any
+  defmacrocallback __handle_error__(ast) :: any
+  defcallback __content_types__() :: [{binary, binary, binary, module}]
 
   @doc """
-  Create a mediatype with default macros for action, affordance, error, and partial
+  Create a mediatype with default macros for action, affordance, error, and provides
 
       defmodule Mazurka.Mediatype.MyMediatype do
         use Mazurka.Mediatype
       end
   """
   defmacro __using__(_) do
-    quote [bind_quoted: []] do
+    quote unquote: false do
       @behaviour Mazurka.Mediatype
 
-      defmacro action(block) do
-        mediatype = __MODULE__
+      defmacro __using__(_) do
+        content_types = __content_types__ |> Macro.escape()
         quote do
-          require Mazurka.Resource.Action
-          Mazurka.Resource.Action.action(unquote(mediatype), unquote(block))
+          require Mazurka.Resource.Provides
+          Mazurka.Resource.Provides.__mediatype_provides__(unquote(__MODULE__), unquote(content_types))
+          import unquote(__MODULE__)
         end
       end
 
-      defmacro affordance(block) do
-        mediatype = __MODULE__
-        quote do
-          require Mazurka.Resource.Affordance
-          Mazurka.Resource.Affordance.affordance(unquote(mediatype), unquote(block))
-        end
-      end
+      use Mazurka.Resource.Action
+      use Mazurka.Resource.Affordance
+      use Mazurka.Resource.Provides
 
       defmacro error(name, block) do
         mediatype = __MODULE__
         quote do
           require Mazurka.Resource.Error
           Mazurka.Resource.Error.error(unquote(mediatype), unquote(name), unquote(block))
-        end
-      end
-
-      defmacro partial(name, block) do
-        mediatype = __MODULE__
-        quote do
-          require Mazurka.Resource.Partial
-          Mazurka.Resource.Partial.partial(unquote(mediatype), unquote(name), unquote(block))
-        end
-      end
-
-      defmacro provides(type) do
-        mediatype = __MODULE__
-        quote do
-          require Mazurka.Resource.Provides
-          Mazurka.Resource.Provides.provides(unquote(mediatype), unquote(type))
         end
       end
     end
