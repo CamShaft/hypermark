@@ -1,9 +1,14 @@
-defmodule Mazurka.Protocol.HTTP.AcceptHeader do
+defmodule Mazurka.Resource.Utils.Accept do
   def handle([]) do
     []
   end
-  def handle([header|_]) do
-    parse(String.split(header, ","), [])
+  def handle([header|rest]) do
+    case parse(String.split(header, ","), []) do
+      [] ->
+        handle(rest)
+      acceptable ->
+        acceptable ++ handle(rest)
+    end
   end
 
   defp parse([], acc) do
@@ -12,7 +17,7 @@ defmodule Mazurka.Protocol.HTTP.AcceptHeader do
   defp parse([h|t], acc) do
     case Plug.Conn.Utils.media_type(h) do
       {:ok, type, subtype, args} ->
-        parse(t, [{-parse_q(args), {type, subtype, Dict.delete(args, "q")}}|acc])
+        parse(t, [{-parse_q(args), {type, subtype, Map.delete(args, "q")}}|acc])
       :error ->
         parse(t, acc)
     end

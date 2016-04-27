@@ -59,7 +59,7 @@ defmodule Mazurka.Resource.Affordance do
         end
       end
 
-      defp mazurka__match_affordance(_, _, _, _) do
+      defp mazurka__match_affordance(_, unquote_splicing(arguments)) do
         nil
       end
     end

@@ -6,7 +6,7 @@ defmodule Mazurka.Resource.Utils do
   end
 
   def arguments do
-    [router, params, input]
+    [router, params, input, conn, opts]
   end
 
   def router do
@@ -19,5 +19,13 @@ defmodule Mazurka.Resource.Utils do
 
   def input do
     {:_@mazurka_input, [warn: false], nil}
+  end
+
+  def conn do
+    {:_@mazurka_conn, [warn: false], nil}
+  end
+
+  def opts do
+    {:_@mazurka_opts, [warn: false], nil}
   end
 end

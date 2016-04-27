@@ -33,7 +33,8 @@ defmodule Mazurka.Resource.Action do
     quote do
       defp mazurka__match_action(unquote(mediatype), unquote_splicing(arguments)) do
         action = unquote(block)
-        unquote(mediatype).__handle_action__(action)
+        res = unquote(mediatype).__handle_action__(action)
+        event(res, unquote_splicing(arguments))
       end
     end
   end
@@ -65,7 +66,7 @@ defmodule Mazurka.Resource.Action do
         end
       end
 
-      defp mazurka__match_action(_, _, _, _) do
+      defp mazurka__match_action(_, unquote_splicing(arguments)) do
         ## TODO raise exception
       end
     end

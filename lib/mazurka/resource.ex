@@ -24,6 +24,32 @@ defmodule Mazurka.Resource do
 
   defmacro __before_compile__(_) do
     quote do
+      @behaviour Plug
+
+      @doc """
+      Initialize the plug
+      """
+      def init(opts), do: opts
+      defoverridable init: 1
+
+      @doc """
+      Execute a plug request against the #{inspect(__MODULE__)} resource
+      """
+      def call(conn, opts) do
+        conn = Plug.Conn.fetch_query_params(conn)
+        accept = Mazurka.Resource.Utils.Accept.handle(Plug.Conn.get_req_header(conn, "accept"))
+        router = mazurka__plug_router(conn)
+        params = conn.params
+        input = Map.merge(conn.query_params, conn.body_params)
+        call(accept, router, params, input, conn, opts)
+      end
+      defoverridable call: 2
+
+      defp mazurka__plug_router(conn) do
+        conn.private[:mazurka_router]
+      end
+      defoverridable mazurka__plug_router: 1
+
       @doc """
       Execute a request against the #{inspect(__MODULE__)} resource
 
@@ -34,10 +60,11 @@ defmodule Mazurka.Resource do
           router = My.Router
           params = %{"user" => "123"}
           input = %{"name" => "Joe"}
+          conn = %Plug.Conn{}
 
-          #{inspect(__MODULE__)}.call(accept, router, params, input)
+          #{inspect(__MODULE__)}.call(accept, router, params, input, conn)
       """
-      def call(content_types, router, params, input) do
+      def call(content_types, router, params, input, conn, opts \\ []) do
         case mazurka__select_content_type(content_types) do
           nil ->
             raise Mazurka.UnacceptableContentTypeException, [
@@ -45,7 +72,7 @@ defmodule Mazurka.Resource do
               acceptable: mazurka__acceptable_content_types()
             ]
           content_type ->
-            {content_type, action(content_type, router, params, input)}
+            {content_type, action(content_type, router, params, input, conn, opts)}
         end
       end
     end

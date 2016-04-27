@@ -18,7 +18,7 @@ defmodule Mazurka.Resource.Mediatype do
 
   defmacro mediatype(name, [do: block]) do
     module = name
-    |> Mazurka.Compiler.Utils.eval(__CALLER__)
+    |> Mazurka.Utils.eval(__CALLER__)
     |> resolve()
 
     quote do

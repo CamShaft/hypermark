@@ -16,10 +16,15 @@ defmodule Mazurka.Resource.Param do
       do: {:quote, [], [[
         do: block]]}]]}
   end
+  defp to_quoted(name, []) do
+    {:defmacrop, [], [name, [
+      do: {:quote, [], [[
+        do: params_get(name)]]}]]}
+  end
 
   defp replace_value(name, block) do
     params_get = params_get(name)
-    Mazurka.Compiler.Utils.postwalk(block, fn
+    Mazurka.Utils.postwalk(block, fn
       ({:&, _, [{:value, _, _}]}) ->
         params_get
       (other) ->
