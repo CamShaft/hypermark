@@ -16,6 +16,7 @@ defmodule Mazurka.Resource do
       use Mazurka.Resource.Event
       use Mazurka.Resource.Input
       use Mazurka.Resource.Let
+      use Mazurka.Resource.Link
       use Mazurka.Resource.Mediatype
       use Mazurka.Resource.Param
       use Mazurka.Resource.Params

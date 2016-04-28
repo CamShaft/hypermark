@@ -28,11 +28,16 @@ defmodule Mazurka.Mediatype.Hyper do
       case {unquote(affordance), unquote(props)} do
         {nil, _} ->
           nil
-        {affordance, %{"input" => _} = props} ->
-          %{
-            "method" => affordance[:method],
-            "action" => to_string(affordance)
-          } |> Map.merge(props)
+        # check if props is defined to supress the compiler warning
+        unquote(if props do
+          quote do
+            {affordance, %{"input" => _} = props} ->
+              %{
+                "method" => affordance[:method],
+                "action" => to_string(affordance)
+              } |> Map.merge(props)
+          end
+        end)
         {%{method: "GET"} = affordance, props} ->
           %{
             "href" => to_string(affordance)
@@ -41,7 +46,7 @@ defmodule Mazurka.Mediatype.Hyper do
           %{
             "method" => affordance[:method],
             "action" => to_string(affordance),
-          } |> Map.merge(props)
+          } |> Map.merge(props || %{})
       end
     end
   end

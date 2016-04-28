@@ -46,7 +46,8 @@ defmodule Mazurka.Resource.Action do
           nil ->
             raise Mazurka.UnacceptableContentTypeException, [
               content_type: content_type,
-              acceptable: mazurka__acceptable_content_types()
+              acceptable: mazurka__acceptable_content_types(),
+              conn: unquote(conn)
             ]
           mediatype ->
             case mazurka__check_params(unquote(params)) do
@@ -54,17 +55,17 @@ defmodule Mazurka.Resource.Action do
                 scope = mazurka__scope(mediatype, unquote_splicing(arguments))
                 case mazurka__conditions(unquote_splicing(arguments), scope) do
                   {:error, message} ->
-                    raise Mazurka.ConditionException, message: message
+                    raise Mazurka.ConditionException, message: message, conn: unquote(conn)
                   :ok ->
                     case mazurka__validations(unquote_splicing(arguments), scope) do
                       {:error, message} ->
-                        raise Mazurka.ValidationException, message: message
+                        raise Mazurka.ValidationException, message: message, conn: unquote(conn)
                       :ok ->
                         mazurka__match_action(mediatype, unquote_splicing(arguments), scope)
                     end
                 end
               {missing, nil_params} ->
-                raise Mazurka.MissingParametersException, params: missing ++ nil_params
+                raise Mazurka.MissingParametersException, params: missing ++ nil_params, conn: unquote(conn)
             end
         end
       end

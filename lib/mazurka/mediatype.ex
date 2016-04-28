@@ -17,6 +17,7 @@ defmodule Mazurka.Mediatype do
   defmacro __using__(_) do
     quote unquote: false do
       @behaviour Mazurka.Mediatype
+      alias Mazurka.Resource.Utils
 
       defmacro __using__(_) do
         content_types = __content_types__ |> Macro.escape()
@@ -24,6 +25,11 @@ defmodule Mazurka.Mediatype do
           require Mazurka.Resource.Provides
           Mazurka.Resource.Provides.__mediatype_provides__(unquote(__MODULE__), unquote(content_types))
           import unquote(__MODULE__)
+
+          defp mazurka__default_affordance(unquote(__MODULE__) = unquote(Utils.mediatype), unquote_splicing(Utils.arguments), unquote(Utils.scope)) do
+            affordance = Mazurka.Resource.Link.resolve(__MODULE__, unquote_splicing(Utils.arguments))
+            unquote(__MODULE__).__handle_affordance__(affordance, nil)
+          end
         end
       end
 
