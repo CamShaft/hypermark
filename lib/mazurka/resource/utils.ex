@@ -2,11 +2,12 @@ defmodule Mazurka.Resource.Utils do
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
+      alias unquote(__MODULE__)
     end
   end
 
   def arguments do
-    [router, params, input, conn, opts]
+    [params, input, conn, router, opts]
   end
 
   def router do
@@ -27,5 +28,13 @@ defmodule Mazurka.Resource.Utils do
 
   def opts do
     {:_@mazurka_opts, [warn: false], nil}
+  end
+
+  def mediatype do
+    {:_@mazurka_mediatype, [warn: false], nil}
+  end
+
+  def scope do
+    {:_@mazurka_scope, [warn: false], nil}
   end
 end

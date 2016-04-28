@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource do
+  use Mazurka.Resource.Utils
+
   @doc """
   Initialize a module as a mazurka resource
 
@@ -8,6 +10,8 @@ defmodule Mazurka.Resource do
   """
   defmacro __using__(_opts) do
     quote do
+      @before_compile unquote(__MODULE__)
+
       use Mazurka.Resource.Condition
       use Mazurka.Resource.Event
       use Mazurka.Resource.Input
@@ -17,39 +21,12 @@ defmodule Mazurka.Resource do
       use Mazurka.Resource.Params
       use Mazurka.Resource.Test
       use Mazurka.Resource.Validation
-
-      @before_compile unquote(__MODULE__)
+      use Mazurka.Resource.Utils.Scope
     end
   end
 
   defmacro __before_compile__(_) do
     quote do
-      @behaviour Plug
-
-      @doc """
-      Initialize the plug
-      """
-      def init(opts), do: opts
-      defoverridable init: 1
-
-      @doc """
-      Execute a plug request against the #{inspect(__MODULE__)} resource
-      """
-      def call(conn, opts) do
-        conn = Plug.Conn.fetch_query_params(conn)
-        accept = Mazurka.Resource.Utils.Accept.handle(Plug.Conn.get_req_header(conn, "accept"))
-        router = mazurka__plug_router(conn)
-        params = conn.params
-        input = Map.merge(conn.query_params, conn.body_params)
-        call(accept, router, params, input, conn, opts)
-      end
-      defoverridable call: 2
-
-      defp mazurka__plug_router(conn) do
-        conn.private[:mazurka_router]
-      end
-      defoverridable mazurka__plug_router: 1
-
       @doc """
       Execute a request against the #{inspect(__MODULE__)} resource
 
@@ -57,14 +34,16 @@ defmodule Mazurka.Resource do
             {"application", "json", %{}},
             {"text", "*", %{}}
           ]
-          router = My.Router
           params = %{"user" => "123"}
           input = %{"name" => "Joe"}
           conn = %Plug.Conn{}
+          router = My.Router
 
-          #{inspect(__MODULE__)}.call(accept, router, params, input, conn)
+          #{inspect(__MODULE__)}.action(accept, params, input, conn, router)
       """
-      def call(content_types, router, params, input, conn, opts \\ []) do
+      def action(accept, params, input, conn, router \\ nil, opts \\ [])
+
+      def action(content_types, unquote_splicing(arguments)) when is_list(content_types) do
         case mazurka__select_content_type(content_types) do
           nil ->
             raise Mazurka.UnacceptableContentTypeException, [
@@ -72,7 +51,34 @@ defmodule Mazurka.Resource do
               acceptable: mazurka__acceptable_content_types()
             ]
           content_type ->
-            {content_type, action(content_type, router, params, input, conn, opts)}
+            {response, conn} = action(content_type, unquote_splicing(arguments))
+            {response, content_type, conn}
+        end
+      end
+
+      @doc """
+      Render an affordance for #{inspect(__MODULE__)}
+
+          content_type = {"appliction", "json", %{}}
+          params = %{"user" => "123"}
+          input = %{"name" => "Fred"}
+          conn = %Plug.Conn{}
+          router = My.Router
+
+          #{inspect(__MODULE__)}.affordance(content_type, params, input, conn, router)
+      """
+      def affordance(accept, params, input, conn, router \\ nil, opts \\ [])
+
+      def affordance(content_types, unquote_splicing(arguments)) when is_list(content_types) do
+        case mazurka__select_content_type(content_types) do
+          nil ->
+            raise Mazurka.UnacceptableContentTypeException, [
+              content_type: content_types,
+              acceptable: mazurka__acceptable_content_types()
+            ]
+          content_type ->
+            {response, conn} = affordance(content_type, unquote_splicing(arguments))
+            {response, content_type, conn}
         end
       end
     end

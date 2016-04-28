@@ -5,7 +5,6 @@ defmodule Mazurka.Mediatype do
   @type props :: Map.t
   defmacrocallback __handle_action__(ast) :: any
   defmacrocallback __handle_affordance__(ast, props) :: any
-  defmacrocallback __handle_error__(ast) :: any
   defcallback __content_types__() :: [{binary, binary, binary, module}]
 
   @doc """
@@ -31,14 +30,6 @@ defmodule Mazurka.Mediatype do
       use Mazurka.Resource.Action
       use Mazurka.Resource.Affordance
       use Mazurka.Resource.Provides
-
-      defmacro error(name, block) do
-        mediatype = __MODULE__
-        quote do
-          require Mazurka.Resource.Error
-          Mazurka.Resource.Error.error(unquote(mediatype), unquote(name), unquote(block))
-        end
-      end
     end
   end
 end

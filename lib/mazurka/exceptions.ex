@@ -25,3 +25,11 @@ end
 defmodule Mazurka.ValidationException do
   defexception [:message]
 end
+
+defmodule Mazurka.MissingParametersException do
+  defexception [:params]
+
+  def message(%{params: params}) do
+    "Missing required parameters: #{Enum.join(params, ", ")}"
+  end
+end

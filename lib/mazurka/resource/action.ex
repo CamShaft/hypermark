@@ -31,7 +31,7 @@ defmodule Mazurka.Resource.Action do
   """
   defmacro action(mediatype, [do: block]) do
     quote do
-      defp mazurka__match_action(unquote(mediatype), unquote_splicing(arguments)) do
+      defp mazurka__match_action(unquote(mediatype) = unquote(Utils.mediatype), unquote_splicing(arguments), unquote(scope)) do
         action = unquote(block)
         res = unquote(mediatype).__handle_action__(action)
         event(res, unquote_splicing(arguments))
@@ -41,10 +41,7 @@ defmodule Mazurka.Resource.Action do
 
   defmacro __before_compile__(_) do
     quote do
-      @doc """
-      TODO write docs
-      """
-      def action(content_type, unquote_splicing(arguments)) do
+      def action(content_type = {_, _, _}, unquote_splicing(arguments)) do
         case mazurka__provide_content_type(content_type) do
           nil ->
             raise Mazurka.UnacceptableContentTypeException, [
@@ -52,21 +49,27 @@ defmodule Mazurka.Resource.Action do
               acceptable: mazurka__acceptable_content_types()
             ]
           mediatype ->
-            case mazurka__conditions(unquote_splicing(arguments)) do
-              {:error, message} ->
-                raise Mazurka.ConditionException, message: message
-              :ok ->
-                case mazurka__validations(unquote_splicing(arguments)) do
+            case mazurka__check_params(unquote(params)) do
+              {[], []} ->
+                scope = mazurka__scope(mediatype, unquote_splicing(arguments))
+                case mazurka__conditions(unquote_splicing(arguments), scope) do
                   {:error, message} ->
-                    raise Mazurka.ValidationException, message: message
+                    raise Mazurka.ConditionException, message: message
                   :ok ->
-                    mazurka__match_action(mediatype, unquote_splicing(arguments))
+                    case mazurka__validations(unquote_splicing(arguments), scope) do
+                      {:error, message} ->
+                        raise Mazurka.ValidationException, message: message
+                      :ok ->
+                        mazurka__match_action(mediatype, unquote_splicing(arguments), scope)
+                    end
                 end
+              {missing, nil_params} ->
+                raise Mazurka.MissingParametersException, params: missing ++ nil_params
             end
         end
       end
 
-      defp mazurka__match_action(_, unquote_splicing(arguments)) do
+      defp mazurka__match_action(_, unquote_splicing(arguments), _) do
         ## TODO raise exception
       end
     end

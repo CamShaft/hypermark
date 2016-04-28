@@ -14,10 +14,10 @@ defmodule Mazurka.Resource.Utils.Check do
           import unquote(__MODULE__)
 
           @doc false
-          defp unquote(check)(unquote_splicing(arguments)) do
+          defp unquote(check)(unquote_splicing(arguments), _) do
             :ok
           end
-          defoverridable [{unquote(check), unquote(length(arguments))}]
+          defoverridable [{unquote(check), unquote(length(arguments) + 1)}]
         end
       end
 
@@ -36,8 +36,8 @@ defmodule Mazurka.Resource.Utils.Check do
         check = unquote(mazurka_check)
         quote do
           @doc false
-          defp unquote(check)(unquote_splicing(arguments)) do
-            case super(unquote_splicing(arguments)) do
+          defp unquote(check)(unquote_splicing(arguments), unquote(scope)) do
+            case super(unquote_splicing(arguments), unquote(scope)) do
               :ok ->
                 if unquote(block) do
                   :ok
@@ -48,7 +48,7 @@ defmodule Mazurka.Resource.Utils.Check do
                 other
             end
           end
-          defoverridable [{unquote(check), unquote(length(arguments))}]
+          defoverridable [{unquote(check), unquote(length(arguments) + 1)}]
         end
       end
 

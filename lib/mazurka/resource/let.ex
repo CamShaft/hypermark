@@ -1,5 +1,5 @@
 defmodule Mazurka.Resource.Let do
-  use Mazurka.Resource.Utils
+  alias Mazurka.Resource.Utils.Scope
 
   defmacro __using__(_) do
     quote do
@@ -12,8 +12,8 @@ defmodule Mazurka.Resource.Let do
 
       let foo = 1
   """
-  defmacro let({:=, meta, [name, block]}) do
-    to_quoted(name, meta, block)
+  defmacro let({:=, _, [name, block]}) do
+    Scope.compile(name, block)
   end
 
   @doc """
@@ -25,12 +25,6 @@ defmodule Mazurka.Resource.Let do
       end
   """
   defmacro let(name, [do: block]) do
-    to_quoted(name, [], block)
-  end
-
-  defp to_quoted(name, meta, block) do
-    {:defmacrop, meta, [name, [
-      do: {:quote, [], [[
-        do: block]]}]]}
+    Scope.compile(name, block)
   end
 end
