@@ -15,8 +15,7 @@ defmodule Mazurka.Mixfile do
   end
 
   defp deps do
-    [{:plug, "~> 1.0"},
-     {:mimetype_parser, "~> 0.1.0"},
+    [{:mimetype_parser, "~> 0.1.0"},
      {:earmark, "~> 0.1", only: :dev},
      {:ex_doc, "~> 0.7", only: :dev},
      {:mix_test_watch, "~> 0.2", only: :dev}]
