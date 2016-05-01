@@ -24,34 +24,25 @@ defmodule Mazurka.Mediatype.Hyper do
 
   defmacro __handle_affordance__(affordance, props) do
     quote do
-      case {unquote(affordance), unquote(props)} do
-        {nil, _} ->
-          nil
-        # check if props is defined to supress the compiler warning
-        unquote(if props do
-          quote do
-            {affordance, %{"input" => _} = props} ->
-              %{
-                "method" => affordance[:method],
-                "action" => to_string(affordance)
-              } |> Map.merge(props)
-          end
-        end)
-        {%{method: "GET"} = affordance, props} ->
+      case {unquote(affordance), unquote(props) || %{}} do
+        {%{__struct__: struct} = affordance, _} when struct in [Mazurka.Affordance.Undefined, Mazurka.Affordance.Unacceptable] ->
+          affordance
+        {%Mazurka.Affordance{} = affordance, %{"input" => _} = props} ->
+          %{
+            "method" => Map.get(affordance, :method),
+            "action" => to_string(affordance)
+          } |> Map.merge(props)
+        {%Mazurka.Affordance{method: "GET"} = affordance, props} ->
           %{
             "href" => to_string(affordance)
-          } |> Map.merge(props || %{})
-        {affordance, props} ->
+          } |> Map.merge(props)
+        {%Mazurka.Affordance{} = affordance, props} ->
           %{
-            "method" => affordance[:method],
+            "method" => Map.get(affordance, :method),
             "action" => to_string(affordance),
             "input" => %{}
-          } |> Map.merge(props || %{})
+          } |> Map.merge(props)
       end
     end
-  end
-
-  def __undefined_link__ do
-    :undefined
   end
 end

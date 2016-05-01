@@ -24,11 +24,6 @@ defmodule Mazurka.Mediatype do
   defcallback __content_types__() :: [{binary, binary, binary, module}]
 
   @doc """
-  TODO write the docs
-  """
-  defcallback __undefined_link__() :: any
-
-  @doc """
   Create a mediatype with default macros for action, affordance, error, and provides
 
       defmodule Mazurka.Mediatype.MyMediatype do
@@ -57,11 +52,6 @@ defmodule Mazurka.Mediatype do
       use Mazurka.Resource.Action
       use Mazurka.Resource.Affordance
       use Mazurka.Resource.Provides
-
-      def __undefined_link__ do
-        nil
-      end
-      defoverridable __undefined_link__: 0
     end
   end
 end

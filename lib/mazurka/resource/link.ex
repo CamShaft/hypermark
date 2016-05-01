@@ -20,7 +20,7 @@ defmodule Mazurka.Resource.Link do
     input = format_params(input)
     Module.put_attribute(__CALLER__.module, :mazurka_links, resource)
     quote do
-      link = unquote(resource).affordance(
+      unquote(resource).affordance(
         unquote(Utils.mediatype),
         unquote(params),
         unquote(input),
@@ -28,12 +28,6 @@ defmodule Mazurka.Resource.Link do
         unquote(Utils.router),
         unquote(opts)
       )
-      case link do
-        nil ->
-          unquote(Utils.mediatype).__undefined_link__
-        _ ->
-          link
-      end
     end
   end
 

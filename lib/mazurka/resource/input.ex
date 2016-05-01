@@ -14,6 +14,7 @@ defmodule Mazurka.Resource.Input do
         Address.parse(&value)
       end
   """
+
   defmacro input(name, block \\ []) do
     Scope.define(Utils.input, name, block)
   end

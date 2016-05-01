@@ -26,6 +26,7 @@ defmodule Mazurka.Resource.Param do
         User.get(&value)
       end
   """
+
   defmacro param(name, block \\ []) do
     bin_name = elem(name, 0) |> to_string()
     [
