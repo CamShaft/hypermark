@@ -43,6 +43,7 @@ defmodule Mazurka.Resource.Param do
               {missing, nil_params}
           end
         end
+        defoverridable mazurka__check_params: 1
       end
     ]
   end

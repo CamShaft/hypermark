@@ -5,13 +5,17 @@ defmodule Mazurka.Resource.Utils.Scope do
 
   defmacro __using__(_) do
     quote do
-      Module.register_attribute(__MODULE__, :scope, [accumulate: true])
-      @before_compile unquote(__MODULE__)
+      defp mazurka__scope(unquote(Utils.mediatype), unquote_splicing(Utils.arguments)) do
+        %{}
+      end
+      defoverridable mazurka__scope: unquote(length(Utils.arguments) + 1)
     end
   end
 
-  def define(var, name, block \\ [])
   def define(var, {name, _, _}, block) when is_atom(name) do
+    define(var, name, block)
+  end
+  def define(var, name, block) when is_atom(name) do
     bin_name = to_string(name)
     block = replace_value(var, bin_name, block)
     compile(name, block)
@@ -39,37 +43,29 @@ defmodule Mazurka.Resource.Utils.Scope do
     end
   end
 
-  def compile({name, _, _}, block) when is_atom(name) do
-    compile(name, block)
-  end
-  def compile(name, block) do
+  defp compile(name, block) do
     body = Macro.escape(get(name))
 
     quote do
-      @scope unquote(name)
       defmacrop unquote(name)() do
         unquote(body)
       end
 
-      defp unquote(name)(unquote(Utils.mediatype), unquote_splicing(Utils.arguments)) do
-        unquote(block)
+      defp mazurka__scope(unquote(Utils.mediatype), unquote_splicing(Utils.arguments)) do
+        unquote(Utils.scope) = super(unquote(Utils.mediatype), unquote_splicing(Utils.arguments))
+        Map.put(unquote(Utils.scope), unquote(name), unquote(block))
       end
+      defoverridable mazurka__scope: unquote(length(Utils.arguments) + 1)
     end
   end
 
   defp get(name) do
     quote do
-      Map.get(unquote(Utils.scope), unquote(name))
-    end
-  end
-
-  defmacro __before_compile__(env) do
-    variables = Module.get_attribute(env.module, :scope) || []
-    quote do
-      defp mazurka__scope(unquote(Utils.mediatype), unquote_splicing(Utils.arguments)) do
-        %{unquote_splicing(for variable <- variables do
-          {variable, {variable, [], [Utils.mediatype | Utils.arguments]}}
-        end)}
+      case Map.fetch(unquote(Utils.scope), unquote(name)) do
+        :error ->
+          raise RuntimeError, message: "variable #{inspect(unquote(name))} was not set before trying to use it"
+        {:ok, value} ->
+          value
       end
     end
   end

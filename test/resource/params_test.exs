@@ -41,4 +41,49 @@ defmodule Test.Mazurka.Resource.Params do
       {body, _} = Foo.affordance([], %{"foo" => nil}, %{}, %{})
       assert %Mazurka.Affordance.Undefined{} = body
   end
+
+  context Transform do
+    resource Foo do
+      param foo do
+        [&value, &value]
+      end
+
+      param bar, [&value, &value]
+
+      mediatype Hyper do
+        action do
+          %{
+            "bar" => bar,
+            "foo" => foo
+          }
+        end
+      end
+    end
+  after
+    "action" ->
+      {body, _, _} = Foo.action([], %{"foo" => "123", "bar" => "456"}, %{}, %{})
+      assert %{"bar" => ["456", "456"], "foo" => ["123", "123"]} = body
+  end
+
+  context Referential do
+    resource Foo do
+      param foo
+
+      param bar do
+        [foo, &value]
+      end
+
+      mediatype Hyper do
+        action do
+          %{
+            "bar" => bar
+          }
+        end
+      end
+    end
+  after
+    "action" ->
+      {body, _, _} = Foo.action([], %{"foo" => "123", "bar" => "456"}, %{}, %{})
+      assert %{"bar" => ["123", "456"]} = body
+  end
 end
