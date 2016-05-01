@@ -10,8 +10,39 @@ defmodule Mazurka.Resource.Utils.Scope do
     end
   end
 
+  def define(var, name, block \\ [])
+  def define(var, {name, _, _}, block) when is_atom(name) do
+    bin_name = to_string(name)
+    block = replace_value(var, bin_name, block)
+    compile(name, block)
+  end
+
+  defp replace_value(var, name, []) do
+    var_get(var, name)
+  end
+  defp replace_value(var, name, [do: block]) do
+    replace_value(var, name, block)
+  end
+  defp replace_value(var, name, block) do
+    params_get = var_get(var, name)
+    Mazurka.Utils.postwalk(block, fn
+      ({:&, _, [{:value, _, _}]}) ->
+        params_get
+      (other) ->
+        other
+    end)
+  end
+
+  defp var_get(var, name) do
+    quote do
+      Map.get(unquote(var), unquote(name))
+    end
+  end
+
+  def compile({name, _, _}, block) when is_atom(name) do
+    compile(name, block)
+  end
   def compile(name, block) do
-    name = elem(name, 0)
     body = Macro.escape(get(name))
 
     quote do

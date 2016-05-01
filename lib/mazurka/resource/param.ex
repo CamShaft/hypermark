@@ -28,9 +28,8 @@ defmodule Mazurka.Resource.Param do
   """
   defmacro param(name, block \\ []) do
     bin_name = elem(name, 0) |> to_string()
-    block = replace_value(bin_name, block)
     [
-      Scope.compile(name, block),
+      Scope.define(Utils.params, name, block),
       quote do
         defp mazurka__check_params(params) do
           {missing, nil_params} = super(params)
@@ -45,27 +44,5 @@ defmodule Mazurka.Resource.Param do
         end
       end
     ]
-  end
-
-  defp replace_value(name, []) do
-    params_get(name)
-  end
-  defp replace_value(name, [do: block]) do
-    replace_value(name, block)
-  end
-  defp replace_value(name, block) do
-    params_get = params_get(name)
-    Mazurka.Utils.postwalk(block, fn
-      ({:&, _, [{:value, _, _}]}) ->
-        params_get
-      (other) ->
-        other
-    end)
-  end
-
-  defp params_get(name) do
-    quote do
-      Map.get(unquote(Utils.params), unquote(name))
-    end
   end
 end
