@@ -34,7 +34,7 @@ defmodule Mazurka.Resource.Affordance do
   defmacro affordance(mediatype, [do: block]) do
     quote do
       defp mazurka__match_affordance(unquote(mediatype) = unquote(Utils.mediatype), unquote_splicing(arguments), unquote(scope)) do
-        affordance = Mazurka.Resource.Link.resolve(__MODULE__, unquote_splicing(arguments))
+        affordance = rel_self()
         props = unquote(block)
         unquote(mediatype).__handle_affordance__(affordance, props)
       end

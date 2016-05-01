@@ -19,13 +19,31 @@ defmodule Mazurka.Resource.Link do
     params = format_params(params)
     input = format_params(input)
     Module.put_attribute(__CALLER__.module, :mazurka_links, resource)
+
     quote do
-      unquote(resource).affordance(
+      conn = unquote(Utils.conn)
+      router = unquote(Utils.router)
+
+      resource = case unquote(resource) do
+                   resource when not is_nil(router) ->
+                     source = %{resource: __MODULE__,
+                                file: __ENV__.file,
+                                line: __ENV__.line,
+                                params: unquote(Utils.params),
+                                input: unquote(Utils.input),
+                                mediatype: unquote(Utils.mediatype),
+                                opts: unquote(Utils.opts)}
+                     router.resolve_resource(resource, source, conn)
+                   resource ->
+                     resource
+                 end
+
+      resource.affordance(
         unquote(Utils.mediatype),
         unquote(params),
         unquote(input),
-        unquote(Utils.conn),
-        unquote(Utils.router),
+        conn,
+        router,
         unquote(opts)
       )
     end
@@ -37,6 +55,7 @@ defmodule Mazurka.Resource.Link do
   defmacro transition_to(resource, params \\ nil, input \\ nil, opts \\ []) do
     params = format_params(params)
     input = format_params(input)
+
     quote do
       conn = unquote(Utils.conn)
 
@@ -61,6 +80,7 @@ defmodule Mazurka.Resource.Link do
   defmacro invalidates(resource, params \\ nil, input \\ nil, opts \\ []) do
     params = format_params(params)
     input = format_params(input)
+
     quote do
       conn = unquote(Utils.conn)
 
@@ -101,19 +121,44 @@ defmodule Mazurka.Resource.Link do
   end
 
   defmacro resolve(resource, params, input, conn, router, opts) do
+    current_params = Utils.params
+    current_input = Utils.input
+    current_mediatype = Utils.mediatype
+    current_opts = Utils.opts
+
     quote bind_quoted: binding do
       case router do
         nil ->
           raise Mazurka.MissingRouterException, resource: resource, params: params, input: input, conn: conn, opts: opts
         router ->
-          router.resolve(resource, params, input, conn, opts)
+          affordance = %Mazurka.Affordance{resource: resource,
+                                           params: params,
+                                           input: input,
+                                           opts: opts}
+
+          source = %{resource: __MODULE__,
+                     file: __ENV__.file,
+                     line: __ENV__.line,
+                     params: current_params,
+                     input: current_input,
+                     mediatype: current_mediatype,
+                     opts: current_opts}
+
+          router.resolve(affordance, source, conn)
       end
     end
   end
 
-  defmacro self_link do
+  defmacro rel_self do
     quote do
-      unquote(__MODULE__).resolve(__MODULE__, unquote(Utils.params), unquote(Utils.input), unquote(Utils.conn), unquote(Utils.router), unquote(Utils.opts))
+      unquote(__MODULE__).resolve(
+        __MODULE__,
+        unquote(Utils.params),
+        unquote(Utils.input),
+        unquote(Utils.conn),
+        unquote(Utils.router),
+        unquote(Utils.opts)
+      )
     end
   end
 

@@ -53,24 +53,25 @@ defmodule Test.Mazurka.Case do
 
   defmacro route(method, path, resource) do
     quote do
-      def resolve(unquote(resource), params, input, _conn, opts) do
-        %Mazurka.Affordance{
-          resource: unquote(resource),
+      def resolve(%{resource: unquote(resource), params: params} = affordance, _source, _conn) do
+        %{affordance |
           method: unquote(method),
-          params: params,
           path: "/" <> Enum.join(Enum.map(unquote(path), fn
             (param) when is_atom(param) ->
               Map.get(params, to_string(param))
             (part) ->
               part
           end), "/"),
-          input: input,
-          query: case URI.encode_query(input) do
+          query: case URI.encode_query(affordance.input) do
                    "" -> nil
                    other -> other
                  end,
-          fragment: opts[:fragment]
+          fragment: affordance.opts[:fragment]
         }
+      end
+
+      def resolve_resource(unquote(resource) = resource, _source, _conn) do
+        resource
       end
     end
   end

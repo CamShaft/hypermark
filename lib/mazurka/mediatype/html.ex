@@ -24,6 +24,8 @@ defmodule Mazurka.Mediatype.HTML do
           {"a", Map.put(props, "href", to_string(affordance)), children}
         {%Mazurka.Affordance{method: method} = affordance, {"form", props, children}} ->
           {"form", Map.merge(%{"method" => method, "action" => to_string(affordance)}, props), children}
+        {_, {_, _, _} = element} ->
+          element
         {%Mazurka.Affordance{method: method} = affordance, children} when is_list(children) ->
           {"form", %{"method" => method, "action" => to_string(affordance)}, children}
       end
