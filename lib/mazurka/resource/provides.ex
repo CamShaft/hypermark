@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Provides do
+  @moduledoc false
+
   defmacro __using__(_) do
     quote do
       @doc """

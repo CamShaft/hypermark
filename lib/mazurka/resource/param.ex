@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Param do
+  @moduledoc false
+
   use Mazurka.Resource.Utils
   alias Mazurka.Resource.Utils.Scope
 

@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Utils.Global do
+  @moduledoc false
+
   defmacro __using__(opts) do
     var_name = opts[:var]
 

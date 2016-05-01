@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Action do
+  @moduledoc false
+
   use Mazurka.Resource.Utils
 
   defmacro __using__(_) do

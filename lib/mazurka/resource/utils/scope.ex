@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Utils.Scope do
+  @moduledoc false
+
   alias Mazurka.Resource.Utils
 
   defmacro __using__(_) do

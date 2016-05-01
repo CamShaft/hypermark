@@ -1,4 +1,8 @@
 defmodule Mazurka.Resource.Mediatype.UndefinedMediatype do
+  @moduledoc """
+  TODO write the docs
+  """
+
   defexception [:mediatype]
 
   def message(%{mediatype: mediatype}) do
@@ -7,6 +11,8 @@ defmodule Mazurka.Resource.Mediatype.UndefinedMediatype do
 end
 
 defmodule Mazurka.Resource.Mediatype do
+  @moduledoc false
+
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)

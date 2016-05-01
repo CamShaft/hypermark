@@ -1,4 +1,8 @@
 defmodule Mazurka.UnacceptableContentTypeException do
+  @moduledoc """
+  TODO write the docs
+  """
+
   defexception [:acceptable, :content_type, :conn]
 
   def message(%{content_type: [content_type]} = ex) do
@@ -19,14 +23,26 @@ defmodule Mazurka.UnacceptableContentTypeException do
 end
 
 defmodule Mazurka.ConditionException do
+  @moduledoc """
+  TODO write the docs
+  """
+
   defexception [:message, :conn]
 end
 
 defmodule Mazurka.ValidationException do
+  @moduledoc """
+  TODO write the docs
+  """
+
   defexception [:message, :conn]
 end
 
 defmodule Mazurka.MissingParametersException do
+  @moduledoc """
+  TODO write the docs
+  """
+
   defexception [:params, :conn]
 
   def message(%{params: params}) do
@@ -35,9 +51,13 @@ defmodule Mazurka.MissingParametersException do
 end
 
 defmodule Mazurka.MissingRouterException do
+  @moduledoc """
+  TODO write the docs
+  """
+
   defexception [:resource, :params, :input, :conn, :opts]
 
-  def message(%{resource: resource}) do
-    "Cannot resolve links without a router in #{inspect(resource)}"
+  def message(_) do
+    "Cannot resolve links without a router"
   end
 end

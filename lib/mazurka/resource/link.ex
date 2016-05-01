@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Link do
+  @moduledoc false
+
   use Mazurka.Resource.Utils
 
   defmacro __using__(_) do
@@ -18,7 +20,7 @@ defmodule Mazurka.Resource.Link do
     input = format_params(input)
     Module.put_attribute(__CALLER__.module, :mazurka_links, resource)
     quote do
-      unquote(resource).affordance(
+      link = unquote(resource).affordance(
         unquote(Utils.mediatype),
         unquote(params),
         unquote(input),
@@ -26,6 +28,12 @@ defmodule Mazurka.Resource.Link do
         unquote(Utils.router),
         unquote(opts)
       )
+      case link do
+        nil ->
+          unquote(Utils.mediatype).__undefined_link__
+        _ ->
+          link
+      end
     end
   end
 
@@ -106,6 +114,12 @@ defmodule Mazurka.Resource.Link do
         router ->
           router.resolve(resource, params, input, conn, opts)
       end
+    end
+  end
+
+  defmacro self_link do
+    quote do
+      unquote(__MODULE__).resolve(__MODULE__, unquote(Utils.params), unquote(Utils.input), unquote(Utils.conn), unquote(Utils.router), unquote(Utils.opts))
     end
   end
 

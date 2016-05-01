@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Affordance do
+  @moduledoc false
+
   use Mazurka.Resource.Utils
 
   defmacro __using__(_) do
@@ -44,8 +46,10 @@ defmodule Mazurka.Resource.Affordance do
       def affordance(content_type = {_, _, _}, unquote_splicing(arguments)) do
         case mazurka__provide_content_type(content_type) do
           nil ->
-            ## TODO should we provide a default link if we don't know how to handle this request?
-            nil
+            %Mazurka.Affordance.Unacceptable{resource: __MODULE__,
+                                             params: unquote(params),
+                                             input: unquote(input),
+                                             opts: unquote(opts)}
           mediatype ->
             affordance(mediatype, unquote_splicing(arguments))
         end
@@ -56,14 +60,22 @@ defmodule Mazurka.Resource.Affordance do
             scope = mazurka__scope(mediatype, unquote_splicing(arguments))
             case mazurka__conditions(unquote_splicing(arguments), scope) do
               {:error, _} ->
-                nil
+                %Mazurka.Affordance.Undefined{resource: __MODULE__,
+                                              mediatype: mediatype,
+                                              params: unquote(params),
+                                              input: unquote(input),
+                                              opts: unquote(opts)}
               :ok ->
                 mazurka__match_affordance(mediatype, unquote_splicing(arguments), scope)
             end
           {missing, _} when length(missing) > 0 ->
             raise Mazurka.MissingParametersException, params: missing, conn: unquote(conn)
           _ ->
-            nil
+            %Mazurka.Affordance.Undefined{resource: __MODULE__,
+                                          mediatype: mediatype,
+                                          params: unquote(params),
+                                          input: unquote(input),
+                                          opts: unquote(opts)}
         end
       end
 

@@ -1,4 +1,6 @@
 defmodule Mazurka.Resource.Utils do
+  @moduledoc false
+
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)

@@ -1,4 +1,8 @@
 defmodule Mazurka.Resource do
+  @moduledoc """
+  TODO write the docs
+  """
+
   use Mazurka.Resource.Utils
 
   @doc """
@@ -7,6 +11,8 @@ defmodule Mazurka.Resource do
       defmodule My.Resource do
         use Mazurka.Resource
       end
+
+  TODO document condition, event, input, let, link, mediatype, param, params, and validation
   """
   defmacro __using__(_opts) do
     quote do
@@ -20,7 +26,6 @@ defmodule Mazurka.Resource do
       use Mazurka.Resource.Mediatype
       use Mazurka.Resource.Param
       use Mazurka.Resource.Params
-      use Mazurka.Resource.Test
       use Mazurka.Resource.Validation
       use Mazurka.Resource.Utils.Scope
     end
@@ -78,8 +83,8 @@ defmodule Mazurka.Resource do
               acceptable: mazurka__acceptable_content_types()
             ]
           content_type ->
-            {response, conn} = affordance(content_type, unquote_splicing(arguments))
-            {response, content_type, conn}
+            response = affordance(content_type, unquote_splicing(arguments))
+            {response, content_type}
         end
       end
     end

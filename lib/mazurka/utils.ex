@@ -1,4 +1,6 @@
 defmodule Mazurka.Utils do
+  @moduledoc false
+
   def env do
     cond do
       env = System.get_env("MIX_ENV") ->

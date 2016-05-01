@@ -1,5 +1,6 @@
 defmodule Mazurka.Mediatype.Hyper do
   use Mazurka.Mediatype
+  use Mazurka.Resource.Utils
 
   def __content_types__ do
     [{"application", "json", %{}},
@@ -13,10 +14,8 @@ defmodule Mazurka.Mediatype.Hyper do
       case unquote(block) do
         %{__struct__: _} = response ->
           response
-        response when is_map(response) ->
-          # TODO
-          #Map.put(response, "href", Link.from_conn(conn))
-          response
+        response when is_map(response) and not is_nil(unquote(Utils.router)) ->
+          Map.put(response, "href", to_string(self_link()))
         response ->
           response
       end
@@ -46,8 +45,13 @@ defmodule Mazurka.Mediatype.Hyper do
           %{
             "method" => affordance[:method],
             "action" => to_string(affordance),
+            "input" => %{}
           } |> Map.merge(props || %{})
       end
     end
+  end
+
+  def __undefined_link__ do
+    :undefined
   end
 end

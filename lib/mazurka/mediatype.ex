@@ -1,11 +1,32 @@
 defmodule Mazurka.Mediatype do
+  @moduledoc """
+  TODO write the docs
+  """
+
   use Behaviour
 
   @type ast :: Macro.t
   @type props :: Map.t
+
+  @doc """
+  TODO write the docs
+  """
   defmacrocallback __handle_action__(ast) :: any
+
+  @doc """
+  TODO write the docs
+  """
   defmacrocallback __handle_affordance__(ast, props) :: any
+
+  @doc """
+  TODO write the docs
+  """
   defcallback __content_types__() :: [{binary, binary, binary, module}]
+
+  @doc """
+  TODO write the docs
+  """
+  defcallback __undefined_link__() :: any
 
   @doc """
   Create a mediatype with default macros for action, affordance, error, and provides
@@ -36,6 +57,11 @@ defmodule Mazurka.Mediatype do
       use Mazurka.Resource.Action
       use Mazurka.Resource.Affordance
       use Mazurka.Resource.Provides
+
+      def __undefined_link__ do
+        nil
+      end
+      defoverridable __undefined_link__: 0
     end
   end
 end
