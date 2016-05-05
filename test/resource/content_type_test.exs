@@ -16,31 +16,31 @@ defmodule Test.Mazurka.Resource.ContentType do
       end
     end
   after
-    "Foo.action [application/json]" ->
+    "application/json" ->
       {_, content_type, _} = Foo.action([{"application", "hyper+json", %{}}], %{}, %{}, %{})
       assert {"application", "hyper+json", %{}} = content_type
 
-    "Foo.action [text/html]" ->
+    "text/html" ->
       {_, content_type, _} = Foo.action([{"text", "html", %{}}], %{}, %{}, %{})
       assert {"text", "html", %{}} = content_type
 
-    "Foo.action [application/*]" ->
+    "application/*" ->
       {_, content_type, _} = Foo.action([{"application", "*", %{}}], %{}, %{}, %{})
       assert {"application", "json", %{}} = content_type
 
-    "Foo.action [*/html]" ->
+    "*/html" ->
       {_, content_type, _} = Foo.action([{"*", "html", %{}}], %{}, %{}, %{})
       assert {"text", "html", %{}} = content_type
 
-    "Foo.action [*/*]" ->
+    "*/*" ->
       {_, content_type, _} = Foo.action([{"*", "*", %{}}], %{}, %{}, %{})
       assert {"application", "json", %{}} = content_type
 
-    "Foo.action [foo/bar, application/json]" ->
+    "foo/bar, application/json" ->
       {_, content_type, _} = Foo.action([{"foo", "bar", %{}}, {"application", "json", %{}}], %{}, %{}, %{})
       assert {"application", "json", %{}} = content_type
 
-    "Foo.action [text/plain]" ->
+    "text/plain" ->
       assert_raise Mazurka.UnacceptableContentTypeException, fn ->
         Foo.action([{"text", "plain", %{}}], %{}, %{}, %{})
       end

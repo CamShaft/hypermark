@@ -27,9 +27,9 @@ defmodule Mazurka.Resource.Event do
     quote location: :keep do
       @doc false
       defp event(action, unquote_splicing(arguments)) do
-        {var!(action), unquote(conn)} = super(action, unquote_splicing(arguments))
+        {var!(action), var!(conn)} = super(action, unquote_splicing(arguments))
         unquote(block)
-        {var!(action), unquote(conn)}
+        {var!(action), var!(conn)}
       end
       defoverridable event: unquote(length(arguments) + 1)
     end
