@@ -10,6 +10,7 @@ defmodule Mazurka.Resource.Provides do
             provides "text/plain"
           end
       """
+
       defmacro provides(type) do
         mediatype = __MODULE__
         quote do
@@ -25,6 +26,7 @@ defmodule Mazurka.Resource.Provides do
 
       provides Mazurka.Mediatype.MyCustomMediatype, "text/plain"
   """
+
   defmacro provides(mediatype, type) do
     quote do
       {:ok, types} = case unquote(type) do
@@ -74,9 +76,9 @@ defmodule Mazurka.Resource.Provides do
       defp mazurka__select_acceptable_content_type([]) do
         nil
       end
-      for {{type, subtype, params}, _} <- provides do
-        defp mazurka__select_acceptable_content_type([{unquote(type), unquote(subtype), unquote(Macro.escape(params))} = ct | _]) do
-          ct
+      for {{type, subtype, params}, {target_type, target_subtype}} <- Mazurka.Resource.Provides.__format_matches__(provides) do
+        defp mazurka__select_acceptable_content_type([{unquote(type), unquote(subtype), unquote(Macro.escape(params)) = params} | _]) do
+          {unquote(target_type), unquote(target_subtype), params}
         end
       end
       defp mazurka__select_acceptable_content_type([_ | content_types]) do
@@ -112,6 +114,38 @@ defmodule Mazurka.Resource.Provides do
         {type, mediatype}
       end
     end)
+  end
+
+  def __format_matches__(provides) do
+    provides
+    |> Enum.reduce({HashSet.new, []}, fn({{type, subtype, params} = ct, _}, {set, acc}) ->
+      acc = [{{type, subtype, params}, {type, subtype}} | acc]
+      {set, acc} = format_match_wildcard(ct, 0, set, acc)
+      {set, acc} = format_match_wildcard(ct, 1, set, acc)
+      {set, acc} = format_match_star(ct, set, acc)
+
+      {set, acc}
+    end)
+    |> elem(1)
+    |> Enum.reverse()
+  end
+
+  defp format_match_star({type, subtype, params}, set, acc) do
+    key = {"*", "*", params}
+    if !Set.member?(set, key) do
+      {Set.put(set, key), [{key, {type, subtype}} | acc]}
+    else
+      {set, acc}
+    end
+  end
+
+  defp format_match_wildcard({type, subtype, _} = content_type, pos, set, acc) do
+    key = put_elem(content_type, pos, "*")
+    if !Set.member?(set, key) do
+      {Set.put(set, key), [{key, {type, subtype}} | acc]}
+    else
+      {set, acc}
+    end
   end
 
   def overrides_to_map(overrides) do

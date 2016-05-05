@@ -14,6 +14,7 @@ defmodule Mazurka.Resource.Action do
             end
           end
       """
+
       defmacro action(block) do
         mediatype = __MODULE__
         quote do
@@ -31,6 +32,7 @@ defmodule Mazurka.Resource.Action do
         # action goes here
       end
   """
+
   defmacro action(mediatype, [do: block]) do
     quote do
       defp mazurka__match_action(unquote(mediatype) = unquote(Utils.mediatype), unquote_splicing(arguments), unquote(scope)) do
@@ -42,7 +44,7 @@ defmodule Mazurka.Resource.Action do
   end
 
   defmacro __before_compile__(_) do
-    quote do
+    quote location: :keep do
       def action(content_type = {_, _, _}, unquote_splicing(arguments)) do
         case mazurka__provide_content_type(content_type) do
           nil ->

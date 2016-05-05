@@ -1,4 +1,4 @@
-defmodule Test.Mazurka.Resource.Links do
+defmodule Test.Mazurka.Resource.Link do
   use Test.Mazurka.Case
 
   context Dual do

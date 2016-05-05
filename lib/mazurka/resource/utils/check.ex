@@ -7,7 +7,7 @@ defmodule Mazurka.Resource.Utils.Check do
     mazurka_check = :"mazurka__#{String.downcase(name)}s"
     macro = :"#{String.downcase(name)}"
 
-    quote bind_quoted: binding do
+    quote bind_quoted: binding, location: :keep do
       use Mazurka.Resource.Utils
 
       defmacro __using__(_) do
@@ -36,7 +36,7 @@ defmodule Mazurka.Resource.Utils.Check do
       end
       defp to_quoted(block, message) do
         check = unquote(mazurka_check)
-        quote do
+        quote location: :keep do
           @doc false
           defp unquote(check)(unquote_splicing(arguments), unquote(scope)) do
             case super(unquote_splicing(arguments), unquote(scope)) do

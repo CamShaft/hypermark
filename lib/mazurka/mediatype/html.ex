@@ -10,8 +10,9 @@ defmodule Mazurka.Mediatype.HTML do
   end
 
   defmacro __handle_affordance__(affordance, props) do
-    quote do
-      case {unquote(affordance), unquote(props) || %{}} do
+    quote location: :keep do
+      affordance = unquote(affordance)
+      case {affordance, unquote(props) || to_string(affordance)} do
         {%{__struct__: struct}, _} when struct in [Mazurka.Affordance.Undefined, Mazurka.Affordance.Unacceptable] ->
           nil
         {%Mazurka.Affordance{method: "GET"} = affordance, name} when is_binary(name) ->

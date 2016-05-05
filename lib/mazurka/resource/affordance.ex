@@ -14,6 +14,7 @@ defmodule Mazurka.Resource.Affordance do
             end
           end
       """
+
       defmacro affordance(block) do
         mediatype = __MODULE__
         quote do
@@ -31,8 +32,9 @@ defmodule Mazurka.Resource.Affordance do
         # affordance goes here
       end
   """
+
   defmacro affordance(mediatype, [do: block]) do
-    quote do
+    quote location: :keep do
       defp mazurka__match_affordance(unquote(mediatype) = unquote(Utils.mediatype), unquote_splicing(arguments), unquote(scope)) do
         affordance = rel_self()
         props = unquote(block)
@@ -42,7 +44,7 @@ defmodule Mazurka.Resource.Affordance do
   end
 
   defmacro __before_compile__(_) do
-    quote do
+    quote location: :keep do
       def affordance(content_type = {_, _, _}, unquote_splicing(arguments)) do
         case mazurka__provide_content_type(content_type) do
           nil ->

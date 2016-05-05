@@ -31,13 +31,13 @@ defmodule Mazurka.Mediatype do
       end
   """
   defmacro __using__(_) do
-    quote unquote: false do
+    quote unquote: false, location: :keep do
       @behaviour Mazurka.Mediatype
       alias Mazurka.Resource.Utils
 
       defmacro __using__(_) do
         content_types = __content_types__ |> Macro.escape()
-        quote do
+        quote location: :keep do
           require Mazurka.Resource.Provides
           Mazurka.Resource.Provides.__mediatype_provides__(unquote(__MODULE__), unquote(content_types))
           import unquote(__MODULE__)

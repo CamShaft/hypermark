@@ -22,8 +22,9 @@ defmodule Mazurka.Resource.Event do
         # event goes here
       end
   """
+
   defmacro event([do: block]) do
-    quote do
+    quote location: :keep do
       @doc false
       defp event(action, unquote_splicing(arguments)) do
         {var!(action), unquote(conn)} = super(action, unquote_splicing(arguments))

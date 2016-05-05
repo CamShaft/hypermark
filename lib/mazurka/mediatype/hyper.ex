@@ -10,7 +10,7 @@ defmodule Mazurka.Mediatype.Hyper do
   end
 
   defmacro __handle_action__(block) do
-    quote do
+    quote location: :keep do
       case unquote(block) do
         %{__struct__: _} = response ->
           response
@@ -23,7 +23,7 @@ defmodule Mazurka.Mediatype.Hyper do
   end
 
   defmacro __handle_affordance__(affordance, props) do
-    quote do
+    quote location: :keep do
       case {unquote(affordance), unquote(props) || %{}} do
         {%{__struct__: struct} = affordance, _} when struct in [Mazurka.Affordance.Undefined, Mazurka.Affordance.Unacceptable] ->
           affordance

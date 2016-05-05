@@ -15,6 +15,7 @@ defmodule Mazurka.Resource.Link do
   @doc """
   Link to another resource
   """
+
   defmacro link_to(resource, params \\ nil, input \\ nil, opts \\ []) do
     params = format_params(params)
     input = format_params(input)
@@ -52,6 +53,7 @@ defmodule Mazurka.Resource.Link do
   @doc """
   Transition to another resource
   """
+
   defmacro transition_to(resource, params \\ nil, input \\ nil, opts \\ []) do
     params = format_params(params)
     input = format_params(input)
@@ -77,6 +79,7 @@ defmodule Mazurka.Resource.Link do
   @doc """
   Invalidate another resource
   """
+
   defmacro invalidates(resource, params \\ nil, input \\ nil, opts \\ []) do
     params = format_params(params)
     input = format_params(input)

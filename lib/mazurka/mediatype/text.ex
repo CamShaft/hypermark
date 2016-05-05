@@ -10,7 +10,7 @@ defmodule Mazurka.Mediatype.Text do
   end
 
   defmacro __handle_affordance__(affordance, props) do
-    quote do
+    quote location: :keep do
       to_string(unquote(props) || unquote(affordance))
     end
   end

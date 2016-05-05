@@ -25,14 +25,13 @@ defmodule Mazurka.Resource do
       use Mazurka.Resource.Link
       use Mazurka.Resource.Mediatype
       use Mazurka.Resource.Param
-      use Mazurka.Resource.Params
       use Mazurka.Resource.Validation
       use Mazurka.Resource.Utils.Scope
     end
   end
 
   defmacro __before_compile__(_) do
-    quote do
+    quote location: :keep do
       @doc """
       Execute a request against the #{inspect(__MODULE__)} resource
 

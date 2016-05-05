@@ -14,7 +14,8 @@ defmodule Mazurka.Resource.Let do
 
       let foo = 1
   """
-  defmacro let({:=, _, [name, block]}) do
+
+  defmacro let({:=, _, [{name, _, _}, block]}) when is_atom(name) do
     Scope.compile(name, block)
   end
 
@@ -26,7 +27,8 @@ defmodule Mazurka.Resource.Let do
         User.get(id)
       end
   """
-  defmacro let(name, [do: block]) do
+
+  defmacro let({name, _, _}, [do: block]) when is_atom(name) do
     Scope.compile(name, block)
   end
 end

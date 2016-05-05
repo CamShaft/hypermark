@@ -1,4 +1,4 @@
-defmodule Test.Mazurka.Resource.Conditions do
+defmodule Test.Mazurka.Resource.Condition do
   use Test.Mazurka.Case
 
   context Single do

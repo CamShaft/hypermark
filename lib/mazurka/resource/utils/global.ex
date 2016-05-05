@@ -13,6 +13,7 @@ defmodule Mazurka.Resource.Utils.Global do
           alias unquote(__MODULE__)
         end
       end
+      defoverridable __using__: 1
 
       defmacro get() do
         Mazurka.Resource.Utils.unquote(var_name)()
@@ -40,11 +41,11 @@ defmodule Mazurka.Resource.Utils.Global do
 
       defmacro get(name, fallback) do
         quote do
-          value = unquote(__MODULE__).get(unquote(name))
-          if value == nil do
-            unquote(fallback)
-          else
-            value
+          case unquote(__MODULE__).get(unquote(name)) do
+            nil ->
+              unquote(fallback)
+            value ->
+              value
           end
         end
       end

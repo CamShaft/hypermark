@@ -39,11 +39,11 @@ defmodule Mazurka.Resource.Utils.Scope do
 
   defp var_get(var, name) do
     quote do
-      Map.get(unquote(var), unquote(name))
+      unquote(var)[unquote(name)]
     end
   end
 
-  defp compile(name, block) do
+  def compile(name, block) do
     body = Macro.escape(get(name))
 
     quote do

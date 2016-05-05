@@ -1,4 +1,4 @@
-defmodule Test.Mazurka.Resource.Params do
+defmodule Test.Mazurka.Resource.Param do
   use Test.Mazurka.Case
 
   context Single do
