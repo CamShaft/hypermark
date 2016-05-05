@@ -7,14 +7,6 @@ defmodule Mazurka.Resource.Utils.Global do
     quote bind_quoted: binding do
       require Mazurka.Resource.Utils
 
-      defmacro __using__(_) do
-        quote do
-          require unquote(__MODULE__)
-          alias unquote(__MODULE__)
-        end
-      end
-      defoverridable __using__: 1
-
       defmacro get() do
         Mazurka.Resource.Utils.unquote(var_name)()
       end

@@ -39,6 +39,11 @@ defmodule Test.Mazurka.Resource.ContentType do
     "Foo.action [foo/bar, application/json]" ->
       {_, content_type, _} = Foo.action([{"foo", "bar", %{}}, {"application", "json", %{}}], %{}, %{}, %{})
       assert {"application", "json", %{}} = content_type
+
+    "Foo.action [text/plain]" ->
+      assert_raise Mazurka.UnacceptableContentTypeException, fn ->
+        Foo.action([{"text", "plain", %{}}], %{}, %{}, %{})
+      end
   end
 
   #context Params do
