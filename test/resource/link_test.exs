@@ -61,6 +61,59 @@ defmodule Test.Mazurka.Resource.Link do
       end
   end
 
+  context MissingParam do
+    resource Foo do
+      param foo
+
+      mediatype Hyper do
+        action do
+          %{}
+        end
+      end
+    end
+
+    resource Bar do
+      mediatype Hyper do
+        action do
+          %{
+            "foo" => link_to(Foo)
+          }
+        end
+      end
+    end
+  after
+    "Bar.action" ->
+      assert_raise Mazurka.MissingParametersException, fn ->
+        Bar.action([], %{}, %{}, %{})
+      end
+  end
+
+  context NilParam do
+    resource Foo do
+      param foo
+
+      mediatype Hyper do
+        action do
+          %{}
+        end
+      end
+    end
+
+    resource Bar do
+      mediatype Hyper do
+        action do
+          %{
+            "foo" => link_to(Foo, foo: nil)
+          }
+        end
+      end
+    end
+  after
+    "Bar.action" ->
+      {res, _, _} = Bar.action([], %{}, %{}, %{})
+      assert %{"foo" => %Mazurka.Affordance.Undefined{resource: Foo}} = res
+  end
+
   context Transition do
     resource Foo do
       param foo
