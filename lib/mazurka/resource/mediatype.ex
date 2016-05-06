@@ -1,15 +1,3 @@
-defmodule Mazurka.Resource.Mediatype.UndefinedMediatype do
-  @moduledoc """
-  TODO write the docs
-  """
-
-  defexception [:mediatype]
-
-  def message(%{mediatype: mediatype}) do
-    "Undefined mediatype #{mediatype}"
-  end
-end
-
 defmodule Mazurka.Resource.Mediatype do
   @moduledoc false
 
@@ -39,7 +27,7 @@ defmodule Mazurka.Resource.Mediatype do
   end
 
   defp resolve([], module) do
-    raise __MODULE__.UndefinedMediatype, mediatype: to_string(module)
+    raise Mazurka.UndefinedMediatype, mediatype: module
   end
   defp resolve([mod | rest], module) do
     mod.module_info() && mod

@@ -69,10 +69,6 @@ defmodule Test.Mazurka.Case do
           fragment: affordance.opts[:fragment]
         }
       end
-
-      def resolve_resource(unquote(resource) = resource, _source, _conn) do
-        resource
-      end
     end
   end
 

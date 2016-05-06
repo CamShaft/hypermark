@@ -61,3 +61,15 @@ defmodule Mazurka.MissingRouterException do
     "Cannot resolve links without a router"
   end
 end
+
+defmodule Mazurka.UndefinedMediatype do
+  @moduledoc """
+  TODO write the docs
+  """
+
+  defexception [:mediatype]
+
+  def message(%{mediatype: mediatype}) do
+    "Undefined mediatype #{inspect(mediatype)}"
+  end
+end

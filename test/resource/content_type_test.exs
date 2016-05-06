@@ -46,6 +46,48 @@ defmodule Test.Mazurka.Resource.ContentType do
       end
   end
 
+  context TextRequest do
+    resource Foo do
+      mediatype Text do
+        action do
+          "Hello, World!"
+        end
+      end
+    end
+  after
+    "action" ->
+      {res, _, _} = Foo.action([], %{}, %{}, %{})
+      assert "Hello, World!" = res
+  end
+
+  context XMLRequest do
+    resource Foo do
+      mediatype XML do
+        action do
+          {"foo", %{}, []}
+        end
+      end
+    end
+  after
+    "action" ->
+      {res, _, _} = Foo.action([], %{}, %{}, %{})
+      assert {"foo", %{}, []} = res
+  end
+
+  test "throws an error with an undefined mediatype" do
+    assert_raise Mazurka.UndefinedMediatype, fn ->
+      defmodule Foo do
+        use Mazurka.Resource
+
+        mediatype FooBarBaz do
+          action do
+            %{}
+          end
+        end
+      end
+    end
+  end
+
   #context Params do
   #  resource Foo do
   #    mediatype Hyper do
