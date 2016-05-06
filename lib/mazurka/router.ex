@@ -1,15 +1,23 @@
-defmodule Mazurka.Router do
-  use Behaviour
+defprotocol Mazurka.Router do
+  @doc """
+  TODO write the docs
+  """
 
-  @type conn :: any
+  def resolve(router, affordance, source, conn)
 
   @doc """
   TODO write the docs
   """
-  defcallback resolve(Mazurka.Affordance.t, Mazurka.Resource.Link.source, conn)
 
-  @doc """
-  TODO write the docs
-  """
-  defcallback resolve_resource(module, Mazurka.Resource.Link.source, conn)
+  def resolve_resource(router, module, source, conn)
+end
+
+defimpl Mazurka.Router, for: Atom do
+  def resolve(router, affordance, source, conn) do
+    router.resolve(affordance, source, conn)
+  end
+
+  def resolve_resource(router, module, source, conn) do
+    router.resolve_resource(module, source, conn)
+  end
 end

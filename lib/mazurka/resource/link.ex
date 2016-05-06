@@ -34,7 +34,7 @@ defmodule Mazurka.Resource.Link do
                                 input: unquote(Utils.input),
                                 mediatype: unquote(Utils.mediatype),
                                 opts: unquote(Utils.opts)}
-                     router.resolve_resource(resource, source, conn)
+                     Mazurka.Router.resolve_resource(router, resource, source, conn)
                    resource ->
                      resource
                  end
@@ -147,7 +147,7 @@ defmodule Mazurka.Resource.Link do
                      mediatype: current_mediatype,
                      opts: current_opts}
 
-          router.resolve(affordance, source, conn)
+          Mazurka.Router.resolve(router, affordance, source, conn)
       end
     end
   end
