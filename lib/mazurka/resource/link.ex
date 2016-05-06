@@ -70,9 +70,9 @@ defmodule Mazurka.Resource.Link do
         unquote(opts)
       )
 
-      private = Map.put(conn.private, :mazurka_transition, target)
+      unquote(Utils.conn) = Mazurka.Conn.transition(conn, target)
 
-      unquote(Utils.conn) = %{conn | private: private}
+      target
     end
   end
 
@@ -96,9 +96,9 @@ defmodule Mazurka.Resource.Link do
         unquote(opts)
       )
 
-      private = Map.update(conn.private, :mazurka_invalidations, [target], &[target | &1])
+      unquote(Utils.conn) = Mazurka.Conn.invalidate(conn, target)
 
-      unquote(Utils.conn) = %{conn | private: private}
+      target
     end
   end
 

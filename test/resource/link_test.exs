@@ -60,4 +60,80 @@ defmodule Test.Mazurka.Resource.Link do
         Bar.affordance([], %{"bar" => "123"}, %{}, %{})
       end
   end
+
+  context Transition do
+    resource Foo do
+      param foo
+
+      mediatype Hyper do
+        action do
+          %{}
+        end
+      end
+    end
+
+    resource Bar do
+      mediatype Hyper do
+        action do
+          transition_to(Foo, foo: "123")
+        end
+      end
+    end
+
+    router Router do
+      route "GET", ["foo", :foo], Foo
+      route "POST", ["bar"], Bar
+    end
+  after
+    "Foo.action" ->
+      {_, _, conn} = Bar.action([], %{}, %{}, %{private: %{}}, Router)
+      affordance = conn.private.mazurka_transition
+      assert Foo = affordance.resource
+      assert %{"foo" => "123"} == affordance.params
+  end
+
+  context Invaldation do
+    resource Foo do
+      param foo
+
+      mediatype Hyper do
+        action do
+          %{}
+        end
+      end
+    end
+
+    resource Bar do
+      param bar
+
+      mediatype Hyper do
+        action do
+          %{}
+        end
+      end
+    end
+
+    resource Baz do
+      mediatype Hyper do
+        action do
+          invalidates(Foo, foo: "123")
+          invalidates(Bar, bar: "456")
+        end
+      end
+    end
+
+    router Router do
+      route "GET", ["foo", :foo], Foo
+      route "GET", ["bar", :bar], Bar
+      route "GET", ["baz", :baz], Baz
+    end
+  after
+    "Baz.action" ->
+      {_, _, conn} = Baz.action([], %{}, %{}, %{private: %{}}, Router)
+      [second, first] = conn.private.mazurka_invalidations
+      assert Foo = first.resource
+      assert %{"foo" => "123"} = first.params
+      assert Bar = second.resource
+      assert %{"bar" => "456"} = second.params
+  end
 end

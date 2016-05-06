@@ -9,7 +9,7 @@ defmodule Test.Mazurka.Case do
   defmacro context(name, [do: body, after: tests]) do
     {name, _} = Code.eval_quoted(name)
     cname = Module.concat([__CALLER__.module, name])
-    quote do
+    quote location: :keep do
       defmodule unquote(cname) do
         Module.register_attribute(__MODULE__, :aliases, accumulate: true)
         unquote(body)
@@ -28,7 +28,7 @@ defmodule Test.Mazurka.Case do
   end
 
   defmacro resource(name, [do: body]) do
-    quote do
+    quote location: :keep do
       defmodule unquote(name) do
         use Mazurka.Resource
         unquote(body)
@@ -39,10 +39,10 @@ defmodule Test.Mazurka.Case do
   end
 
   defmacro router(name, [do: body]) do
-    quote do
+    quote location: :keep do
       defmodule unquote(name) do
         unquote(body)
-        def resolve(_, _, _, _, _) do
+        def resolve(_, _, _) do
           throw :undefined_route
         end
       end
@@ -52,7 +52,7 @@ defmodule Test.Mazurka.Case do
   end
 
   defmacro route(method, path, resource) do
-    quote do
+    quote location: :keep do
       def resolve(%{resource: unquote(resource), params: params} = affordance, _source, _conn) do
         %{affordance |
           method: unquote(method),
