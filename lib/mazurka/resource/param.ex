@@ -7,7 +7,7 @@ defmodule Mazurka.Resource.Param do
   alias Utils.Scope
 
   defmacro __using__(_) do
-    Module.register_attribute(__CALLER__.module, :mazurka_param_checks, accumulate: true)
+    Module.register_attribute(__CALLER__.module, :mazurka_param_checks, accumulate: true, persist: true)
     quote do
       require unquote(__MODULE__)
       alias unquote(__MODULE__), as: Params
@@ -39,14 +39,14 @@ defmodule Mazurka.Resource.Param do
     case Module.get_attribute(env.module, :mazurka_param_checks) do
       [] ->
         quote do
-          defp __mazurka_check_params__(_params) do
+          def __mazurka_check_params__(_params) do
             {[], []}
           end
         end
       [name] ->
         quote do
-          defp __mazurka_check_params__(params) do
-            Mazurka.Resource.Param.__check_param__(params, unquote(name), [], [])
+          def __mazurka_check_params__(params) do
+           Mazurka.Resource.Param.__check_param__(params, unquote(name), [], [])
           end
         end
       names ->
@@ -56,7 +56,7 @@ defmodule Mazurka.Resource.Param do
           end
         end)
         quote do
-          defp __mazurka_check_params__(params) do
+          def __mazurka_check_params__(params) do
             missing = []
             nil_params = []
             unquote_splicing(checks)

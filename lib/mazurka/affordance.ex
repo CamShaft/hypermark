@@ -21,9 +21,7 @@ defmodule Mazurka.Affordance do
              :userinfo]
 
   @doc false
-  def fetch(affordance, key) do
-    Map.fetch(affordance, key)
-  end
+  defdelegate fetch(affordance, key), to: Map
 end
 
 defimpl String.Chars, for: Mazurka.Affordance do
