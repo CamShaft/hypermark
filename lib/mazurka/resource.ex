@@ -22,6 +22,8 @@ defmodule Mazurka.Resource do
       quote do
         @before_compile unquote(__MODULE__)
 
+        @compile :nowarn_unused_vars
+
         use Mazurka.Resource.Condition
         use Mazurka.Resource.Event
         use Mazurka.Resource.Input

@@ -15,7 +15,7 @@ defmodule Mazurka.Resource.Utils.Check do
         quote do
           import unquote(__MODULE__)
 
-          Module.register_attribute(__MODULE__, unquote(check), accumulate: true)
+          Module.register_attribute(__MODULE__, unquote(check), accumulate: true, persist: true)
           @before_compile unquote(__MODULE__)
         end
       end

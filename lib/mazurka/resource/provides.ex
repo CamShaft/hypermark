@@ -46,7 +46,7 @@ defmodule Mazurka.Resource.Provides do
   @doc false
   defmacro __mediatype_provides__(mediatype, types) do
     quote do
-      Module.register_attribute(__MODULE__, :mazurka_provides, accumulate: true)
+      Module.register_attribute(__MODULE__, :mazurka_provides, accumulate: true, persist: true)
       Module.put_attribute(__MODULE__, :mazurka_provides, {unquote(mediatype), unquote(types)})
     end
   end
@@ -67,7 +67,7 @@ defmodule Mazurka.Resource.Provides do
       end
 
       defp __mazurka_select_content_type__(types) when types in [nil, []] do
-        unquote(list |> hd |> Macro.escape)
+        unquote(list |> Enum.at(0) |> Macro.escape)
       end
       defp __mazurka_select_content_type__(types) do
         __mazurka_select_acceptable_content_type__(types)

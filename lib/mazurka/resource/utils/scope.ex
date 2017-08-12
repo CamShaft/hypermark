@@ -5,7 +5,7 @@ defmodule Mazurka.Resource.Utils.Scope do
 
   defmacro __using__(_) do
     quote do
-      Module.register_attribute(__MODULE__, :mazurka_scope, accumulate: true)
+      Module.register_attribute(__MODULE__, :mazurka_scope, accumulate: true, persist: true)
       @before_compile unquote(__MODULE__)
     end
   end

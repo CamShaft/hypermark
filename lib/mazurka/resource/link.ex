@@ -5,7 +5,7 @@ defmodule Mazurka.Resource.Link do
 
   defmacro __using__(_) do
     quote do
-      Module.register_attribute(__MODULE__, :mazurka_links, accumulate: true)
+      Module.register_attribute(__MODULE__, :mazurka_links, accumulate: true, persist: true)
       import unquote(__MODULE__)
       alias unquote(__MODULE__)
       require Logger
@@ -54,7 +54,7 @@ defmodule Mazurka.Resource.Link do
             Mazurka.Router.format_params(router, unquote(params), source, conn),
             Mazurka.Router.format_params(router, unquote(input), source, conn),
             conn,
-            router,
+           router,
             Map.put(opts, :fragment, unquote(fragment))
           )
       end

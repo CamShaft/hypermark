@@ -6,7 +6,7 @@ defmodule Mazurka.Resource.Event do
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
-      Module.register_attribute(__MODULE__, :mazurka_events, accumulate: true)
+      Module.register_attribute(__MODULE__, :mazurka_events, accumulate: true, persist: true)
       @before_compile unquote(__MODULE__)
     end
   end
